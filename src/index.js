@@ -1,54 +1,84 @@
 import updateMarkup from './js/update-gallery';
 import api from './js/api-service';
+import onGalleryItemClick from './js/modal';
+import scrollGallery from './js/page-scroll';
 import refs from './js/refs';
+import toastr from 'toastr';
+import toastOptions from './js/options/toastr-options';
+import 'toastr/build/toastr.min.css';
 import './styles.css';
 
 refs.form.addEventListener('submit', onFormSubmit);
-refs.loadMorBtn.addEventListener('click', onLoadBtnClick);
+refs.loadMorBtn.addEventListener('click', fetchImg);
 
 function onFormSubmit(event) {
   event.preventDefault();
 
   const form = event.currentTarget;
   api.query = form.elements.query.value;
+
   refs.galleryList.innerHTML = '';
+  refs.galleryList.removeEventListener('click', onGalleryItemClick);
 
   api.resetPage();
-  api.fetchImg().then(img => updateMarkup(img));
+
+  fetchImg();
 
   form.reset();
 }
 
-function onLoadBtnClick() {
-  api.fetchImg().then(img => updateMarkup(img));
-}
-
-function fetchImages() {
-  refs.button.classList.add('is-hidden');
-
-  apiService.fetchImages().then(images => {
-    if (images.length === 0) {
-      showNotice();
-
-      refs.button.classList.add('is-hidden');
+function fetchImg() {
+  refs.loadMorBtn.classList.add('is-hidden');
+  api.fetchImg().then(img => {
+    if (img.length === 0) {
+      toastr.error(
+        'No results were found for your request! Please specify your request.',
+      );
 
       return;
     }
 
-    showSuccess();
+    toastr.success('Images on your request. Enjoy.');
 
-    updateGalleryMarkup(images);
+    updateMarkup(img);
 
-    refs.button.classList.remove('is-hidden');
+    refs.loadMorBtn.classList.remove('is-hidden');
 
-    setTimeout(() => {
-      window.scrollTo({
-        top: document.documentElement.offsetHeight,
-        behavior: 'smooth',
-      });
-    }, 3000);
+    scrollGallery();
+    // console.log(document.documentElement.offsetHeight);
   });
+
+  refs.galleryList.addEventListener('click', onGalleryItemClick);
 }
+
+// console.log(document.documentElement.offsetHeight);
+
+// function fetchImages() {
+//   refs.button.classList.add('is-hidden');
+
+//   apiService.fetchImages().then(images => {
+//     if (images.length === 0) {
+//       showNotice();
+
+//       refs.button.classList.add('is-hidden');
+
+//       return;
+//     }
+
+//     showSuccess();
+
+//     updateGalleryMarkup(images);
+
+//     refs.button.classList.remove('is-hidden');
+
+//     setTimeout(() => {
+//       window.scrollTo({
+//         top: document.documentElement.offsetHeight,
+//         behavior: 'smooth',
+//       });
+//     }, 3000);
+//   });
+// }
 
 // formRef.addEventListener('submit', e => {
 //   e.preventDefault();
