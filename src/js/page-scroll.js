@@ -4,7 +4,7 @@ function scrollGallery() {
       top: document.documentElement.offsetHeight,
       behavior: 'smooth',
     });
-  }, 2000);
+  }, 1500);
 }
 
 export default scrollGallery;
